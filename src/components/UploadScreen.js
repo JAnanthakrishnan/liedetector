@@ -1,11 +1,58 @@
 import React, { useState } from "react";
-import { Upload, message, Button, Form, Divider, Modal } from "antd";
+import {
+  Upload,
+  message,
+  Button,
+  Form,
+  Divider,
+  Modal,
+  notification,
+} from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import VideoRecorder from "react-video-recorder";
+import axios from "axios";
+
+const openNotification = (prediction) => {
+  notification.open({
+    message: "Prediction Results",
+    description: `Model predicted ${prediction}`,
+    onClick: () => {
+      console.log("Notification Clicked!");
+    },
+  });
+};
+
 const UploadScreen = () => {
   const [currFile, setCurrFile] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [notselected, setSelected] = useState(true);
+  const [predicting, setPredicting] = useState(false);
+  const uploadFile = (e) => {
+    e.preventDefault();
+    setPredicting(true);
+    let newFile = new File([currFile], "newVideo.mp4");
+    console.log(newFile);
+    // openNotification();
+    const formData = new FormData();
+
+    formData.append("file", newFile);
+    const filePath = {
+      path: "newVideo.mp4",
+    };
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    axios
+      .post("http://2332-159-65-147-173.ngrok.io/api/upload", formData)
+      .then((res) => {
+        console.log(res);
+        openNotification(res.data);
+        setPredicting(false);
+      })
+      .catch((err) => console.warn(err));
+  };
   const showModal = () => {
     setIsModalVisible(true);
   };
@@ -57,10 +104,8 @@ const UploadScreen = () => {
       <Divider />
       <Button
         type="primary"
-        onClick={() => {
-          console.log(currFile);
-        }}
-        disabled={notselected}
+        onClick={uploadFile}
+        disabled={notselected || predicting}
       >
         Predict
       </Button>
