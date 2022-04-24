@@ -45,7 +45,7 @@ const UploadScreen = () => {
       },
     };
     axios
-      .post("http://2332-159-65-147-173.ngrok.io/api/upload", formData)
+      .post("https://2218-159-65-147-173.ngrok.io/api/upload", formData)
       .then((res) => {
         console.log(res);
         openNotification(res.data);
